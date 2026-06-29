@@ -27,6 +27,11 @@ export const api = {
   me: () => req('/auth/me'),
   updateMe: (p) => req('/auth/me', { method: 'PUT', body: JSON.stringify(p) }),
   deleteAccount: () => req('/auth/me', { method: 'DELETE' }),
+  verifyEmail: (token) => req(`/auth/verify-email?token=${token}`),
+  resendVerification: () => req('/auth/resend-verification', { method: 'POST' }),
+  forgotPassword: (email) => req('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token, password) => req('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) }),
+  googleAuth: (credential) => req('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }),
   // tutors
   categories: () => req('/tutors/categories'),
   searchTutors: (p = {}) => {

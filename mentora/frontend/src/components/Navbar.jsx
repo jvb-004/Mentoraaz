@@ -29,6 +29,7 @@ export default function Navbar() {
         <div className="navbar-actions">
           {user ? (
             <>
+              <Link to="/dashboard" className="btn btn-ghost btn-sm">Dashboard</Link>
               <Link to="/messages" className="btn btn-ghost btn-sm">Mesajlar</Link>
               <Link to="/me" className="nav-avatar" title={user.name}>
                 {user.photo_url ? <img src={user.photo_url} alt="" /> : user.name?.[0]?.toUpperCase()}

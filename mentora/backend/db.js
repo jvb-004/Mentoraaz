@@ -143,3 +143,60 @@ function migrate() {
 migrate();
 
 module.exports = db;
+
+// Email verification tokens table (added for v3)
+function migrateV3() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_verifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT NOT NULL UNIQUE,
+      expires_at TEXT NOT NULL,
+      used_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT NOT NULL UNIQUE,
+      expires_at TEXT NOT NULL,
+      used_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  // Add email_verified column to users if it doesn't exist
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`);
+  } catch (e) {
+    // column already exists, fine
+  }
+
+  // Add google_id column if it doesn't exist
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`);
+  } catch (e) {
+    // column already exists, fine
+  }
+}
+
+migrateV3();
+
+// Sessions table (added for StudentDashboard)
+function migrateV4() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      tutor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      subject TEXT NOT NULL,
+      start_time TEXT NOT NULL,
+      duration_minutes INTEGER NOT NULL DEFAULT 60,
+      status TEXT DEFAULT 'upcoming',
+      jitsi_room_id TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+}
+migrateV4();
